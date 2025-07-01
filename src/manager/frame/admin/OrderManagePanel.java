@@ -40,8 +40,8 @@ public class OrderManagePanel extends JInternalFrame {
         refreshBtn = new JButton("刷新");
         cancelBtn = new JButton("取消预约");
         arriveBtn = new JButton("到诊登记");
-        inputResultBtn = new JButton("录入体检结果");
-        JButton viewResultBtn = new JButton("查看体检结果");
+        inputResultBtn = new JButton("录入结果");
+        JButton viewResultBtn = new JButton("查看结果");
         JButton[] btns = {refreshBtn, cancelBtn, arriveBtn, inputResultBtn, viewResultBtn};
         Font btnFont = new Font("微软雅黑", Font.PLAIN, 15);
         for (JButton btn : btns) {
