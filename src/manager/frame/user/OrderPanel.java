@@ -27,8 +27,13 @@ public class OrderPanel extends JInternalFrame {
         this.setSize(700, 400);
         this.setVisible(true);
         // 顶部预约区
-        JPanel topPanel = new JPanel();
-        topPanel.add(new JLabel("选择体检组："));
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        topPanel.setBackground(Color.white);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 10, 6, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridy = 0; gbc.gridx = 0;
+        topPanel.add(new JLabel("选择体检组："), gbc); gbc.gridx++;
         List<java.util.Map<String, Object>> groups = CheckGroupDao.queryAll(null, null, null);
         String[] groupNames = new String[groups.size()];
         String[] groupIds = new String[groups.size()];
@@ -37,21 +42,40 @@ public class OrderPanel extends JInternalFrame {
             groupIds[i] = String.valueOf(groups.get(i).get("gid"));
         }
         groupBox = new JComboBox<>(groupNames);
-        topPanel.add(groupBox);
-        topPanel.add(new JLabel("体检方式："));
+        groupBox.setPreferredSize(new Dimension(180, 32));
+        topPanel.add(groupBox, gbc); gbc.gridx++;
+        topPanel.add(new JLabel("体检方式："), gbc); gbc.gridx++;
         typeBox = new JComboBox<>(new String[]{"微信", "电脑"});
-        topPanel.add(typeBox);
+        typeBox.setPreferredSize(new Dimension(120, 32));
+        topPanel.add(typeBox, gbc); gbc.gridx++;
         orderBtn = new JButton("预约体检");
-        topPanel.add(orderBtn);
+        orderBtn.setFont(new Font("微软雅黑", Font.BOLD, 15));
+        orderBtn.setBackground(new Color(66, 133, 244));
+        orderBtn.setForeground(Color.white);
+        orderBtn.setFocusPainted(false);
+        orderBtn.setPreferredSize(new Dimension(120, 36));
+        topPanel.add(orderBtn, gbc); gbc.gridx++;
         JButton viewGroupBtn = new JButton("查看组内项目");
-        topPanel.add(viewGroupBtn);
-        // 新增：查看体检结果按钮
+        viewGroupBtn.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        viewGroupBtn.setBackground(new Color(240,240,240));
+        viewGroupBtn.setFocusPainted(false);
+        viewGroupBtn.setPreferredSize(new Dimension(120, 36));
+        topPanel.add(viewGroupBtn, gbc); gbc.gridx++;
         JButton viewResultBtn = new JButton("查看体检结果");
-        topPanel.add(viewResultBtn);
+        viewResultBtn.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        viewResultBtn.setBackground(new Color(240,240,240));
+        viewResultBtn.setFocusPainted(false);
+        viewResultBtn.setPreferredSize(new Dimension(120, 36));
+        topPanel.add(viewResultBtn, gbc);
         add(topPanel, BorderLayout.NORTH);
         // 预约记录表
         orderTable = new JTable();
+        orderTable.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 15));
+        orderTable.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        orderTable.setRowHeight(28);
+        orderTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scroll = new JScrollPane(orderTable);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(220,220,220), 1));
         add(scroll, BorderLayout.CENTER);
         // 预约按钮事件
         orderBtn.addActionListener(new ActionListener() {
@@ -105,6 +129,9 @@ public class OrderPanel extends JInternalFrame {
                 data[i][3] = m.get("unit");
             }
             JTable table = new JTable(data, colNames);
+            table.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14));
+            table.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+            table.setRowHeight(26);
             table.setEnabled(false);
             JScrollPane scroll2 = new JScrollPane(table);
             scroll2.setPreferredSize(new Dimension(400, 200));
@@ -160,6 +187,9 @@ public class OrderPanel extends JInternalFrame {
             data[i][4] = m.get("unit");
         }
         JTable table = new JTable(data, colNames);
+        table.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14));
+        table.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        table.setRowHeight(26);
         table.setEnabled(false);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setPreferredSize(new Dimension(500, 250));
