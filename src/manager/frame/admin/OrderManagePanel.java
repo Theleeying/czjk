@@ -3,6 +3,8 @@ package manager.frame.admin;
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import manager.dao.OrderDao;
 import manager.pojo.Order;
 
@@ -15,27 +17,66 @@ public class OrderManagePanel extends JInternalFrame {
 
     public OrderManagePanel() {
         super("预约管理", true, true, true, true);
-        setSize(800, 500);
+        setSize(900, 540);
         setVisible(true);
+        setBackground(Color.white);
         setLayout(new BorderLayout());
-        // 按钮区
-        JPanel topPanel = new JPanel();
+        // 标题区
+        JLabel titleLabel = new JLabel("预约管理");
+        titleLabel.setFont(new Font("微软雅黑", Font.BOLD, 22));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(18, 0, 8, 0));
+        add(titleLabel, BorderLayout.NORTH);
+        // 操作区
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        topPanel.setBackground(Color.white);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 10, 6, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 0;
+        gbc.gridx = 0;
         refreshBtn = new JButton("刷新");
         cancelBtn = new JButton("取消预约");
         arriveBtn = new JButton("到诊登记");
         inputResultBtn = new JButton("录入体检结果");
-        topPanel.add(refreshBtn);
-        topPanel.add(cancelBtn);
-        topPanel.add(arriveBtn);
-        topPanel.add(inputResultBtn);
-        // 新增：查看体检结果按钮
         JButton viewResultBtn = new JButton("查看体检结果");
-        topPanel.add(viewResultBtn);
-        add(topPanel, BorderLayout.NORTH);
+        JButton[] btns = {refreshBtn, cancelBtn, arriveBtn, inputResultBtn, viewResultBtn};
+        Font btnFont = new Font("微软雅黑", Font.PLAIN, 15);
+        for (JButton btn : btns) {
+            btn.setFont(btnFont);
+            btn.setFocusPainted(false);
+            btn.setPreferredSize(new Dimension(120, 36));
+        }
+        // 主次分明
+        refreshBtn.setBackground(new Color(66, 133, 244)); refreshBtn.setForeground(Color.white);
+        arriveBtn.setBackground(new Color(66, 133, 244)); arriveBtn.setForeground(Color.white);
+        inputResultBtn.setBackground(new Color(66, 133, 244)); inputResultBtn.setForeground(Color.white);
+        cancelBtn.setBackground(new Color(240,240,240));
+        viewResultBtn.setBackground(new Color(240,240,240));
+        topPanel.add(refreshBtn, gbc); gbc.gridx++;
+        topPanel.add(cancelBtn, gbc); gbc.gridx++;
+        topPanel.add(arriveBtn, gbc); gbc.gridx++;
+        topPanel.add(inputResultBtn, gbc); gbc.gridx++;
+        topPanel.add(viewResultBtn, gbc);
+        add(topPanel, BorderLayout.PAGE_START);
         // 表格区
-        orderTable = new JTable();
+        orderTable = new JTable() {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
         JScrollPane scroll = new JScrollPane(orderTable);
-        add(scroll, BorderLayout.CENTER);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(220,220,220), 1));
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setBackground(Color.white);
+        tablePanel.add(scroll, BorderLayout.CENTER);
+        JTableHeader tableHeader = orderTable.getTableHeader();
+        tableHeader.setFont(new Font("微软雅黑", Font.BOLD, 15));
+        orderTable.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        orderTable.setRowHeight(28);
+        orderTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        add(tablePanel, BorderLayout.CENTER);
         // 事件
         refreshBtn.addActionListener(e -> refreshTable());
         cancelBtn.addActionListener(e -> cancelOrder());
@@ -61,7 +102,7 @@ public class OrderManagePanel extends JInternalFrame {
             data[i][7] = "0".equals(o.getType()) ? "微信" : "电脑";
             data[i][8] = "0".equals(o.getStatus()) ? "未到诊" : "到诊";
         }
-        orderTable.setModel(new javax.swing.table.DefaultTableModel(data, colNames));
+        orderTable.setModel(new DefaultTableModel(data, colNames));
     }
 
     private void cancelOrder() {
@@ -115,19 +156,25 @@ public class OrderManagePanel extends JInternalFrame {
         for (manager.pojo.CheckResult r : results) {
             resultMap.put(r.getCid(), r);
         }
-        JPanel panel = new JPanel(new GridLayout(items.size(), 2));
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         java.util.List<JTextField> fields = new java.util.ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             java.util.Map<String, Object> m = items.get(i);
             int cid = (int) m.get("cid");
             String label = m.get("cname") + "(" + m.get("ccode") + ")";
-            panel.add(new JLabel(label));
-            JTextField field = new JTextField(10);
+            gbc.gridx = 0; gbc.gridy = i;
+            panel.add(new JLabel(label), gbc);
+            gbc.gridx = 1;
+            JTextField field = new JTextField(16);
+            field.setFont(new Font("微软雅黑", Font.PLAIN, 15));
             if (resultMap.containsKey(cid)) {
                 field.setText(resultMap.get(cid).getValue());
             }
             fields.add(field);
-            panel.add(field);
+            panel.add(field, gbc);
         }
         int r = JOptionPane.showConfirmDialog(this, panel, "录入体检结果", JOptionPane.OK_CANCEL_OPTION);
         if (r == JOptionPane.OK_OPTION) {
@@ -173,6 +220,9 @@ public class OrderManagePanel extends JInternalFrame {
         }
         JTable table = new JTable(data, colNames);
         table.setEnabled(false);
+        table.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14));
+        table.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        table.setRowHeight(26);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setPreferredSize(new Dimension(500, 250));
         JOptionPane.showMessageDialog(this, scroll, "体检结果明细", JOptionPane.INFORMATION_MESSAGE);
@@ -206,6 +256,9 @@ public class OrderManagePanel extends JInternalFrame {
         }
         JTable table = new JTable(data, colNames);
         table.setEnabled(false);
+        table.getTableHeader().setFont(new Font("微软雅黑", Font.BOLD, 14));
+        table.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        table.setRowHeight(26);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setPreferredSize(new Dimension(500, 250));
         JOptionPane.showMessageDialog(this, scroll, "体检结果明细", JOptionPane.INFORMATION_MESSAGE);
